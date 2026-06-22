@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Saved Recipes</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header>
+  <h1>Saved Recipes</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="upload.html">Upload Recipe</a>
+  </nav>
+</header>
+
+<main>
+  <h2>Your Recipes</h2>
+  <div id="recipeList"></div>
+</main>
+
+<script src="js/storage.js"></script>
+<script>
+  async function loadRecipes() {
+    const recipes = await loadAllRecipes();
+    const container = document.getElementById("recipeList");
+
+    if (recipes.length === 0) {
+      container.innerHTML = "<p>No recipes saved yet.</p>";
+      return;
+    }
+
+    container.innerHTML = recipes.map(r => `
+      <div class="recipe-card">
+        <h3>${r.title}</h3>
+        <p><strong>Ingredients:</strong><br>${r.ingredients}</p>
+        <p><strong>Directions:</strong><br>${r.directions}</p>
+      </div>
+    `).join("");
+  }
+
+  loadRecipes();
+</script>
+
+</body>
+</html>
