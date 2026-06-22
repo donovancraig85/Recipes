@@ -1,7 +1,7 @@
 // ai.js — Azure AI + Firebase integration
 
 const AZURE_FUNCTION_URL =
-  "recipe-ai-function-f0b8fpb2f3cxb0df.eastus-01.azurewebsites.net";
+  "https://recipe-ai-function-f0b8fpb2f3xcb0df.eastus-01.azurewebsites.net/api/readFile";
 
 /**
  * Analyze a recipe file using Azure AI
