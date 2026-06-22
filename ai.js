@@ -1,3 +1,13 @@
+// ai.js — Azure AI + Firebase integration
+
+const AZURE_FUNCTION_URL =
+  "https://recipe-ai-function-f0b8fbp2f3xcb0df.eastus-01.azurewebsites.net/api/readFile";
+
+/**
+ * Analyze a recipe file using Azure AI
+ * @param {File} file
+ * @returns {Promise<Object>}
+ */
 async function analyzeFileWithAI(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -6,7 +16,7 @@ async function analyzeFileWithAI(file) {
       try {
         const base64 = reader.result.split(",")[1];
 
-        const response = await fetch("https://YOUR-FUNCTION.azurewebsites.net/api/readFile", {
+        const response = await fetch(AZURE_FUNCTION_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -16,17 +26,19 @@ async function analyzeFileWithAI(file) {
         });
 
         if (!response.ok) {
-          reject("AI service error: " + response.status);
+          reject(`AI service error: ${response.status}`);
           return;
         }
 
         const result = await response.json();
         resolve(result);
+
       } catch (err) {
         reject(err);
       }
     };
 
+    reader.onerror = () => reject("File reading failed.");
     reader.readAsDataURL(file);
   });
 }

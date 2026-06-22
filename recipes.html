@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Saved Recipes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Saved Recipes</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="upload.html">Upload Recipe</a>
+      <a href="recipes.html">View Recipes</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Recipes</h2>
+      <div id="recipesContainer"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Recipe AI</p>
+  </footer>
+
+  <!-- Firebase init (same config as upload.html) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
+  <script src="js/storage.js"></script>
+  <script>
+    const container = document.getElementById("recipesContainer");
+
+    async function renderRecipes() {
+      try {
+        const recipes = await loadAllRecipes();
+        if (!recipes.length) {
+          container.innerHTML = "<p>No recipes saved yet.</p>";
+          return;
+        }
+
+        container.innerHTML = "";
+        recipes.forEach(recipe => {
+          const card = document.createElement("article");
+          card.className = "recipe-card";
+
+          const title = document.createElement("h3");
+          title.textContent = recipe.title || "Untitled Recipe";
+
+          const ingredients = document.createElement("p");
+          ingredients.textContent = recipe.ingredients || "";
+
+          const directions = document.createElement("p");
+          directions.textContent = recipe.directions || "";
+
+          card.appendChild(title);
+          card.appendChild(ingredients);
+          card.appendChild(directions);
+          container.appendChild(card);
+        });
+      } catch (err) {
+        container.innerHTML = "<p>Error loading recipes: " + err + "</p>";
+      }
+    }
+
+    renderRecipes();
+  </script>
+</body>
+</html>

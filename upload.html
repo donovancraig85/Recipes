@@ -3,35 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <title>Upload Recipe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <header>
+    <h1>Upload Recipe</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="upload.html">Upload Recipe</a>
+      <a href="recipes.html">View Recipes</a>
+    </nav>
+  </header>
 
-<header>
-  <h1>Upload Recipe</h1>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="recipes.html">View Recipes</a>
-  </nav>
-</header>
+  <main>
+    <section>
+      <h2>Upload a file</h2>
+      <input type="file" id="fileInput" accept=".pdf,.txt,.jpg,.jpeg,.png">
+      <button id="uploadBtn">Upload</button>
+      <p id="status"></p>
 
-<main>
-  <h2>Select a recipe file</h2>
+      <h3>AI Output</h3>
+      <pre id="output"></pre>
 
-  <input type="file" id="fileInput">
-  <button id="uploadBtn">Analyze with AI</button>
+      <button id="saveBtn" style="display:none;">Save Recipe</button>
+    </section>
+  </main>
 
-  <p id="status"></p>
+  <footer>
+    <p>&copy; 2026 Recipe AI</p>
+  </footer>
 
-  <h3>AI Output</h3>
-  <pre id="output"></pre>
+  <!-- Firebase init (replace with your config) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
 
-  <button id="saveBtn" style="display:none;">Save Recipe</button>
-</main>
+  <!-- Core JS -->
+  <script src="js/ai.js"></script>
+  <script src="js/storage.js"></script>
+  <script>
+    let lastAIRecipe = null;
 
-<script src="js/ai.js"></script>
-<script src="js/storage.js"></script>
-<script src="js/app.js"></script>
+    const fileInput = document.getElementById("fileInput");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const statusEl = document.getElementById("status");
+    const output = document.getElementById("output");
+    const saveBtn = document.getElementById("saveBtn");
 
+    uploadBtn.addEventListener("click", async () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        statusEl.textContent = "Please select a file first.";
+        return;
+      }
+
+      statusEl.textContent = "Analyzing with AI...";
+
+      try {
+        const result = await analyzeFileWithAI(file);
+        output.textContent = result.recipe || result.text || "No recipe text returned.";
+        lastAIRecipe = parseRecipe(result.recipe || result.text);
+        statusEl.textContent = "AI analysis complete.";
+        saveBtn.style.display = "inline-block";
+      } catch (err) {
+        statusEl.textContent = "Error: " + err;
+      }
+    });
+
+    saveBtn.addEventListener("click", async () => {
+      if (!lastAIRecipe) {
+        statusEl.textContent = "No recipe to save.";
+        return;
+      }
+      try {
+        await saveRecipe(lastAIRecipe);
+        statusEl.textContent = "Recipe saved to Firebase.";
+      } catch (err) {
+        statusEl.textContent = "Error saving recipe: " + err;
+      }
+    });
+
+    function parseRecipe(rawText) {
+      // Simple placeholder parser; you can improve this later
+      return {
+        title: "Imported Recipe",
+        ingredients: rawText,
+        directions: rawText
+      };
+    }
+  </script>
 </body>
 </html>
